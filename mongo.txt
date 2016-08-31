@@ -1,0 +1,59 @@
+use omicron
+
+// Create a collection named orders.
+  db.createCollection('orders')
+
+// Insert at least 3 documents that represent an order.
+// IMPORTANT: See section below for fields.
+  db.orders.insert({ orderDate: new Date('August 29, 2016') , orderTotal: 4,
+  lineItems: [{unitPrice: 20, quantity: 7, productName: 'cheetos'}] })
+
+  db.orders.insert({ orderDate: new Date('August 29, 2016') , orderTotal: 4,
+  lineItems: [{unitPrice: 20, quantity: 65, productName: 'burritos'}] })
+
+  db.orders.insert({ orderDate: new Date('August 29, 2016') , orderTotal: 4,
+  lineItems: [{unitPrice: 20, quantity: 47, productName: 'tacos'}] })
+
+
+      // not quite right: (dropped dbs)
+          db.orders.insert({ orderDate: new Date('August 29, 2016') , orderTotal: 4,
+          lineItems: [{'unitPrice': '20', 'quantity': '65', 'productName': 'burritos'}] })
+          db.orders.insert({ orderDate: new Date('August 29, 2016') , orderTotal: 4,
+          lineItems: [{unitPrice: 20}, {quantity: 7}, {productName: 'cheetos'}] })
+          db.orders.insert({ orderDate: new Date('August 29, 2016') , orderTotal: 4,
+          lineItems: [{'unitPrice': 20, 'quantity': 65, 'productName': 'tacos'}] })
+
+// Find a single order document, any order document.
+  db.orders.findOne()
+
+// Find all orders and make them look pretty.
+  db.orders.find().pretty()
+
+// Find all orders with an orderDate that is prior to 1/1/2016.
+  db.orders.find({orderDate: {$lt: new Date('January 1, 2016')}})
+
+// Find all orders with an orderDate that is after 1/1/2016.
+  db.orders.find({orderDate: {$gt: new Date('January 1, 2016')}})
+
+// Find orders with lineItems that have a quantity that is less than 50, but greater than 5. HINT: Look at $and and dot notation.
+
+    // I deleted all the wrong answers I had tried,
+    // but this took me a couple hours and two db.dropDatabase();
+
+// better answer:
+  db.orders.find({ $and: [{ "lineItems.quantity": { $lt: 50, $gt: 5 } }] })
+
+// also works:
+  db.orders.find({
+  $and: [{ "lineItems.quantity": { $lt: 50 } }, { "lineItems.quantity": { $gt: 5 } }] })
+
+// Update one of your line items to 42.99. HINT: Look at dot notation
+db.orders.update(
+   { "lineItems.productName" : 'cheetos' },
+   { $set: { "lineItems.$.unitPrice" : 42.99 } }
+)
+
+// the above question took an hour and one more database drop
+
+// Remove one of your orders.
+db.orders.remove({'lineItems.productName': 'burritos'})
